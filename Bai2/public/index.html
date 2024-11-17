@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NguyenThoNgocIt</title>
+    <style>
+      /* Đặt phong cách tổng thể cho trang */
+      body {
+        text-align: center;
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Tiêu đề */
+      h1 {
+        color: #4a90e2;
+        margin-top: 20px;
+      }
+
+      /* Phần mô tả */
+      p {
+        font-size: 1.2em;
+        color: #666;
+        margin: 20px 0;
+      }
+
+      /* Khung chọn thành phố */
+      #city-select {
+        padding: 10px;
+        font-size: 1em;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #fff;
+        margin-top: 20px;
+        width: 250px;
+      }
+
+      /* Nút tra cứu */
+      button {
+        background-color: #4a90e2;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        font-size: 1em;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+
+      /* Đổi màu khi di chuột lên nút */
+      button:hover {
+        background-color: #357abd;
+      }
+
+      /* Kết quả hiển thị */
+      #result {
+        margin-top: 20px;
+        font-size: 1.2em;
+        font-weight: bold;
+        
+        color: #4a90e2;
+      }    
+      /* Chỉnh kích thước và căn giữa */
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Creating a Server</h1>
+      <p>Search filter biển số xe 64 tỉnh thành</p>
+
+      <select id="city-select">
+        <option value="">Chọn thành phố</option>
+        <!-- Các tùy chọn thành phố sẽ được thêm động -->
+      </select>
+
+      <button onclick="getPlateNumber()">Tra cứu</button>
+
+      <p id="result"></p>
+    </div>
+
+    <script>
+      window.onload = function () {
+        fetch("/city")
+          .then((response) => response.json())
+          .then((cityList) => {
+            const select = document.getElementById("city-select");
+            cityList.forEach((city) => {
+              const option = document.createElement("option");
+              option.value = city;
+              option.textContent = city;
+              select.appendChild(option);
+            });
+          })
+          .catch((err) => console.error("Error fetching cities:", err));
+      };
+
+      function getPlateNumber() {
+        const city = document.getElementById("city-select").value;
+        if (!city) {
+          document.getElementById("result").textContent =
+            "Vui lòng chọn một tỉnh thành!";
+          return;
+        }
+
+        fetch(`/plates/${city}`)
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.plate_no) {
+              document.getElementById(
+                "result"
+              ).textContent = `Biển số xe: ${data.plate_no}`;
+            } else {
+              document.getElementById("result").textContent =
+                "Không tìm thấy biển số!";
+            }
+          })
+          .catch(() => {
+            document.getElementById("result").textContent = "Lỗi khi tra cứu!";
+          });
+      }
+    </script>
+  </body>
+</html>
